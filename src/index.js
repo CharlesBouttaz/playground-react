@@ -1,24 +1,54 @@
-import React, {Component} from "react";
+import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
 
-class Square extends React.Component {
+class Game extends React.Component {
     render() {
         return (
-            <button className="square">
-                {/* TODO */}
-            </button>
+            <div className="game">
+                <div className="game-board">
+                    <Board />
+                </div>
+                <div className="game-info">
+                    <div>{/* status */}</div>
+                    <ol>{/* TODO */}</ol>
+                </div>
+            </div>
         );
     }
 }
 
 class Board extends React.Component {
-    renderSquare(i) {
-        return <Square />;
+    constructor() {
+        super();
+        this.state = {
+            squares: new Array(9).fill(null),
+            xIsNext: true,
+        };
     }
-
+    renderSquare(i) {
+        return <Square value={ this.state.squares[i] } onClick={ () => this.handleClick(i)}/>;
+    }
+    handleClick(i) {
+        const squares = this.state.squares.slice();
+        if (calculateWinner(squares) || squares[i]) {
+            return;
+        }
+        squares[i] = this.state.xIsNext ? 'X' : 'O';
+        this.setState({
+            squares: squares,
+            xIsNext: !this.state.xIsNext,
+        });
+    }
     render() {
-        const status = 'Next player: X';
+        const winner = calculateWinner(this.state.squares);
+        let status;
+        if (winner) {
+            status = 'Winner: ' + winner;
+        }else{
+            status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
+        }
+
         return (
             <div>
                 <div className="status">{status}</div>
@@ -42,18 +72,12 @@ class Board extends React.Component {
     }
 }
 
-class Game extends React.Component {
+class Square extends React.Component {
     render() {
         return (
-            <div className="game">
-                <div className="game-board">
-                    <Board />
-                </div>
-                <div className="game-info">
-                    <div>{/* status */}</div>
-                    <ol>{/* TODO */}</ol>
-                </div>
-            </div>
+            <button className="square" onClick={ () => this.props.onClick() }>
+                {this.props.value}
+            </button>
         );
     }
 }
